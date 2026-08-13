@@ -59,9 +59,67 @@ const Step4Final = () => {
     alert('Ссылка скопирована! 📋');
   };
 
+  // Функция для Apple Calendar
+  const addToAppleCalendar = (dateTime, location, title, description) => {
+    if (!dateTime) { alert('Дата не указана'); return; }
+    
+    const startDate = new Date(dateTime);
+    const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
+    const formatDate = (date) => {
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const hours = String(d.getHours()).padStart(2, '0');
+      const minutes = String(d.getMinutes()).padStart(2, '0');
+      const seconds = String(d.getSeconds()).padStart(2, '0');
+      return `${year}${month}${day}T${hours}${minutes}${seconds}`;
+    };
+    
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Date Invite//RU',
+      'BEGIN:VEVENT',
+      `UID:${Date.now()}@dateinvite`,
+      `DTSTAMP:${formatDate(new Date())}`,
+      `DTSTART:${formatDate(startDate)}`,
+      `DTEND:${formatDate(endDate)}`,
+      `SUMMARY:${title}`,
+      `LOCATION:${location || ''}`,
+      `DESCRIPTION:${description || ''}`,
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+    
+    // Создаём ссылку
+    const link = document.createElement('a');
+    link.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsContent);
+    link.download = 'date-invite.ics';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Функция для Google Calendar
+  const addToGoogleCalendar = (dateTime, location, title, description) => {
+    if (!dateTime) { alert('Дата не указана'); return; }
+    
+    const startDate = new Date(dateTime);
+    const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
+    const formatDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${formatDate(startDate)}/${formatDate(endDate)}&details=${encodeURIComponent(description)}&location=${encodeURIComponent(location || '')}`;
+    window.open(url, '_blank');
+  };
+
   if (isGenerated && partnerChoices?.accepted) {
     const selectedTheme = themes.find(t => t.id === partnerChoices.selectedTheme);
     const selectedFormat = selectedTheme?.formats.find(f => f.id === partnerChoices.selectedFormat);
+    const dateTime = partnerChoices.selectedDateTime;
+    const location = partnerChoices.selectedLocation;
+    const title = `Свидание с ${partnerInfo.name}`;
+    const description = `Стиль: ${selectedTheme?.label || ''} - Формат: ${selectedFormat?.label || ''} - Место: ${location || ''}`;
     
     return (
       <div style={{ textAlign: 'center' }}>
@@ -85,50 +143,24 @@ const Step4Final = () => {
               }).join(', ')}
             </p>
           )}
-          {partnerChoices.selectedDateTime && <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}><span style={{ color: '#888' }}>Дата и время:</span> {new Date(partnerChoices.selectedDateTime).toLocaleString('ru-RU')}</p>}
-          {partnerChoices.selectedLocation && <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}><span style={{ color: '#888' }}>Место встречи:</span> 📍 {partnerChoices.selectedLocation}</p>}
+          {dateTime && <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}><span style={{ color: '#888' }}>Дата и время:</span> {new Date(dateTime).toLocaleString('ru-RU')}</p>}
+          {location && <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}><span style={{ color: '#888' }}>Место встречи:</span> 📍 {location}</p>}
         </div>
 
-        <button onClick={() => {
-          const dateTime = partnerChoices.selectedDateTime;
-          const location = partnerChoices.selectedLocation;
-          if (!dateTime) { alert('Дата не указана'); return; }
-          const startDate = new Date(dateTime);
-          const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
-          const formatDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-          const title = `Свидание с ${partnerInfo.name}`;
-          const details = `Стиль: ${selectedTheme?.label || ''}\nФормат: ${selectedFormat?.label || ''}\nМесто: ${location || ''}`;
-          const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${formatDate(startDate)}/${formatDate(endDate)}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location || '')}`;
-          window.open(url, '_blank');
-        }} style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: '#4285f4', color: '#fff', border: 'none', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: 'pointer', marginBottom: '8px' }}>
-          📅 Добавить в Google Calendar
+        {/* Google Calendar */}
+        <button onClick={() => addToGoogleCalendar(dateTime, location, title, description)} 
+          style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: '#4285f4', color: '#fff', border: 'none', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: 'pointer', marginBottom: '8px' }}>
+          📅 Google Calendar
         </button>
 
-        <button onClick={() => {
-          const dateTime = partnerChoices.selectedDateTime;
-          const location = partnerChoices.selectedLocation;
-          if (!dateTime) { alert('Дата не указана'); return; }
-          const startDate = new Date(dateTime);
-          const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
-          const formatDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-          const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Date Invite//RU\nBEGIN:VEVENT\nUID:${Date.now()}@dateinvite\nDTSTAMP:${formatDate(new Date())}\nDTSTART:${formatDate(startDate)}\nDTEND:${formatDate(endDate)}\nSUMMARY:Свидание с ${partnerInfo.name}\nLOCATION:${location || ''}\nEND:VEVENT\nEND:VCALENDAR`;
-          
-          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-          if (isIOS) {
-            window.location.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsContent);
-          } else {
-            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'date-invite.ics';
-            link.click();
-            URL.revokeObjectURL(link.href);
-          }
-        }} style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: '#555', color: '#fff', border: 'none', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: 'pointer', marginBottom: '8px' }}>
-          📲 Добавить в Apple Calendar
+        {/* Apple Calendar */}
+        <button onClick={() => addToAppleCalendar(dateTime, location, title, description)} 
+          style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: '#555', color: '#fff', border: 'none', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: 'pointer', marginBottom: '8px' }}>
+          📲 Apple Calendar (.ics)
         </button>
 
-        <button onClick={() => { setIsGenerated(false); setPartnerChoices(null); reset(); }} style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: '#00b894', color: '#fff', border: 'none', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: 'pointer' }}>
+        <button onClick={() => { setIsGenerated(false); setPartnerChoices(null); reset(); }} 
+          style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: '#00b894', color: '#fff', border: 'none', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: 'pointer' }}>
           Отлично! 👌
         </button>
       </div>
