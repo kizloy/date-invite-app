@@ -139,16 +139,22 @@ function App() {
               const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
               const formatDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
               const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Date Invite//RU\nBEGIN:VEVENT\nUID:${Date.now()}@dateinvite\nDTSTAMP:${formatDate(new Date())}\nDTSTART:${formatDate(startDate)}\nDTEND:${formatDate(endDate)}\nSUMMARY:Свидание с ${inviteView.myProfile.name}\nLOCATION:${location || ''}\nEND:VEVENT\nEND:VCALENDAR`;
-              const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-              const link = document.createElement('a');
-              link.href = URL.createObjectURL(blob);
-              link.download = 'date-invite.ics';
-              link.click();
-              URL.revokeObjectURL(link.href);
+              
+              const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+              if (isIOS) {
+                window.location.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsContent);
+              } else {
+                const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'date-invite.ics';
+                link.click();
+                URL.revokeObjectURL(link.href);
+              }
             }}
             style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: '#555', color: '#fff', border: 'none', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: 'pointer', marginBottom: '8px' }}
           >
-            📲 Добавить в Apple Calendar (.ics)
+            📲 Добавить в Apple Calendar
           </button>
 
           <button onClick={() => { setIsAccepted(false); setInviteView(null); setPartnerStep(1); setShowIntro(true); reset(); window.history.replaceState({}, '', '/'); }} 
