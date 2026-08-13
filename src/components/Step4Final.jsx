@@ -28,7 +28,11 @@ const Step4Final = () => {
     
     const inviteData = {
       id: uniqueId,
-      myProfile,
+      myProfile: {
+        name: myProfile.name,
+        gender: myProfile.gender,
+        photo: null,
+      },
       partnerInfo,
       settings,
       details,
@@ -59,37 +63,21 @@ const Step4Final = () => {
     const selectedTheme = themes.find(t => t.id === partnerChoices.selectedTheme);
     const selectedFormat = selectedTheme?.formats.find(f => f.id === partnerChoices.selectedFormat);
     
-    const addToCalendar = () => {
-      const dateTime = partnerChoices.selectedDateTime;
-      const location = partnerChoices.selectedLocation;
-      if (!dateTime) { alert('Дата не указана'); return; }
-      
-      const startDate = new Date(dateTime);
-      const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
-      const formatDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-      
-      const title = `Свидание с ${partnerInfo.name}`;
-      const details = `Стиль: ${selectedTheme?.label || ''}\nФормат: ${selectedFormat?.label || ''}\nМесто: ${location || ''}`;
-      
-      const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${formatDate(startDate)}/${formatDate(endDate)}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location || '')}`;
-      window.open(url, '_blank');
-    };
-    
     return (
       <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: '64px', marginBottom: '20px' }}>💝</div>
-        <h2 style={{ color: '#fff' }}>Приглашение принято!</h2>
+        <div style={{ fontSize: 'clamp(48px, 10vw, 64px)', marginBottom: '20px' }}>💝</div>
+        <h2 style={{ color: '#fff', fontSize: 'clamp(24px, 5vw, 32px)' }}>Приглашение принято!</h2>
         <p style={{ color: '#888', margin: '20px 0' }}>{partnerInfo.name} согласил(ся/ась)! 🎉</p>
 
         <div style={{ background: '#2a2a00', border: '1px solid #ffcc00', padding: '15px', borderRadius: '12px', marginBottom: '20px' }}>
-          <p style={{ fontSize: '16px', color: '#ffcc00', fontWeight: '600' }}>📸 Не забудь сделать скриншот!</p>
+          <p style={{ fontSize: 'clamp(14px, 3vw, 16px)', color: '#ffcc00', fontWeight: '600' }}>📸 Не забудь сделать скриншот!</p>
         </div>
 
         <div style={{ background: '#252525', padding: '20px', borderRadius: '16px', marginBottom: '20px', textAlign: 'left' }}>
-          {selectedTheme && <p style={{ color: '#fff', marginBottom: '10px' }}><span style={{ color: '#888' }}>Стиль:</span> {selectedTheme.emoji} {selectedTheme.label}</p>}
-          {selectedFormat && <p style={{ color: '#fff', marginBottom: '10px' }}><span style={{ color: '#888' }}>Где:</span> {selectedFormat.emoji} {selectedFormat.label}</p>}
+          {selectedTheme && <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}><span style={{ color: '#888' }}>Стиль:</span> {selectedTheme.emoji} {selectedTheme.label}</p>}
+          {selectedFormat && <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}><span style={{ color: '#888' }}>Где:</span> {selectedFormat.emoji} {selectedFormat.label}</p>}
           {partnerChoices.selectedFoods?.length > 0 && (
-            <p style={{ color: '#fff', marginBottom: '10px' }}>
+            <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}>
               <span style={{ color: '#888' }}>Что кушаем:</span>{' '}
               {partnerChoices.selectedFoods.map(foodId => {
                 const food = foodOptions.find(f => f.id === foodId);
@@ -97,15 +85,44 @@ const Step4Final = () => {
               }).join(', ')}
             </p>
           )}
-          {partnerChoices.selectedDateTime && <p style={{ color: '#fff', marginBottom: '10px' }}><span style={{ color: '#888' }}>Дата и время:</span> {new Date(partnerChoices.selectedDateTime).toLocaleString('ru-RU')}</p>}
-          {partnerChoices.selectedLocation && <p style={{ color: '#fff', marginBottom: '10px' }}><span style={{ color: '#888' }}>Место встречи:</span> 📍 {partnerChoices.selectedLocation}</p>}
+          {partnerChoices.selectedDateTime && <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}><span style={{ color: '#888' }}>Дата и время:</span> {new Date(partnerChoices.selectedDateTime).toLocaleString('ru-RU')}</p>}
+          {partnerChoices.selectedLocation && <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}><span style={{ color: '#888' }}>Место встречи:</span> 📍 {partnerChoices.selectedLocation}</p>}
         </div>
 
-        <button onClick={addToCalendar} style={{ width: '100%', padding: '16px', background: '#4285f4', color: '#fff', border: 'none', borderRadius: '14px', fontSize: '17px', cursor: 'pointer', marginBottom: '8px' }}>
+        <button onClick={() => {
+          const dateTime = partnerChoices.selectedDateTime;
+          const location = partnerChoices.selectedLocation;
+          if (!dateTime) { alert('Дата не указана'); return; }
+          const startDate = new Date(dateTime);
+          const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
+          const formatDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+          const title = `Свидание с ${partnerInfo.name}`;
+          const details = `Стиль: ${selectedTheme?.label || ''}\nФормат: ${selectedFormat?.label || ''}\nМесто: ${location || ''}`;
+          const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${formatDate(startDate)}/${formatDate(endDate)}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location || '')}`;
+          window.open(url, '_blank');
+        }} style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: '#4285f4', color: '#fff', border: 'none', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: 'pointer', marginBottom: '8px' }}>
           📅 Добавить в Google Calendar
         </button>
 
-        <button onClick={() => { setIsGenerated(false); setPartnerChoices(null); reset(); }} style={{ width: '100%', padding: '16px', background: '#00b894', color: '#fff', border: 'none', borderRadius: '14px', fontSize: '17px', cursor: 'pointer' }}>
+        <button onClick={() => {
+          const dateTime = partnerChoices.selectedDateTime;
+          const location = partnerChoices.selectedLocation;
+          if (!dateTime) { alert('Дата не указана'); return; }
+          const startDate = new Date(dateTime);
+          const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
+          const formatDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+          const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Date Invite//RU\nBEGIN:VEVENT\nUID:${Date.now()}@dateinvite\nDTSTAMP:${formatDate(new Date())}\nDTSTART:${formatDate(startDate)}\nDTEND:${formatDate(endDate)}\nSUMMARY:Свидание с ${partnerInfo.name}\nLOCATION:${location || ''}\nEND:VEVENT\nEND:VCALENDAR`;
+          const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = 'date-invite.ics';
+          link.click();
+          URL.revokeObjectURL(link.href);
+        }} style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: '#555', color: '#fff', border: 'none', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: 'pointer', marginBottom: '8px' }}>
+          📲 Добавить в Apple Calendar (.ics)
+        </button>
+
+        <button onClick={() => { setIsGenerated(false); setPartnerChoices(null); reset(); }} style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: '#00b894', color: '#fff', border: 'none', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: 'pointer' }}>
           Отлично! 👌
         </button>
       </div>
@@ -115,8 +132,8 @@ const Step4Final = () => {
   if (isGenerated) {
     return (
       <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: '64px', marginBottom: '20px' }}>🎉</div>
-        <h2 style={{ color: '#fff' }}>Приглашение готово!</h2>
+        <div style={{ fontSize: 'clamp(48px, 10vw, 64px)', marginBottom: '20px' }}>🎉</div>
+        <h2 style={{ color: '#fff', fontSize: 'clamp(24px, 5vw, 32px)' }}>Приглашение готово!</h2>
         <p style={{ color: '#888', margin: '20px 0' }}>Отправь эту ссылку и жди ответа</p>
         <p style={{ color: '#666', fontSize: '14px', marginBottom: '20px' }}>Ты получишь уведомление, когда партнёр ответит</p>
 
@@ -124,11 +141,11 @@ const Step4Final = () => {
           <code style={{ color: '#ff3366', fontSize: '14px', wordBreak: 'break-all' }}>{inviteLink}</code>
         </div>
 
-        <button onClick={copyLink} style={{ width: '100%', padding: '16px', background: '#ff3366', color: '#fff', border: 'none', borderRadius: '14px', fontSize: '17px', cursor: 'pointer', marginBottom: '8px' }}>
+        <button onClick={copyLink} style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: '#ff3366', color: '#fff', border: 'none', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: 'pointer', marginBottom: '8px' }}>
           📋 Копировать ссылку
         </button>
 
-        <button onClick={() => { setIsGenerated(false); setPartnerChoices(null); reset(); }} style={{ width: '100%', padding: '16px', background: 'transparent', color: '#888', border: '1px solid #333', borderRadius: '14px', fontSize: '17px', cursor: 'pointer' }}>
+        <button onClick={() => { setIsGenerated(false); setPartnerChoices(null); reset(); }} style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: 'transparent', color: '#888', border: '1px solid #333', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: 'pointer' }}>
           ← Создать новое
         </button>
       </div>
@@ -136,14 +153,14 @@ const Step4Final = () => {
   }
 
   const inputStyle = {
-    width: '100%', padding: '16px', background: '#252525', border: '2px solid #333',
+    width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: '#252525', border: '2px solid #333',
     borderRadius: '14px', color: '#fff', fontSize: '16px', marginBottom: '16px',
     outline: 'none', boxSizing: 'border-box',
   };
 
   return (
     <div>
-      <h2 style={{ color: '#fff' }}>Детали свидания</h2>
+      <h2 style={{ color: '#fff', fontSize: 'clamp(20px, 5vw, 24px)' }}>Детали свидания</h2>
       <p style={{ color: '#888', marginBottom: '24px' }}>Последний шаг!</p>
 
       {useInviteStore.getState().planningMode === 'self' ? (
@@ -159,11 +176,11 @@ const Step4Final = () => {
         </div>
       )}
 
-      <button onClick={generateInvite} disabled={isSaving} style={{ width: '100%', padding: '16px', background: isSaving ? '#333' : '#ff3366', color: '#fff', border: 'none', borderRadius: '14px', fontSize: '17px', cursor: isSaving ? 'wait' : 'pointer', marginBottom: '8px' }}>
+      <button onClick={generateInvite} disabled={isSaving} style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: isSaving ? '#333' : '#ff3366', color: '#fff', border: 'none', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: isSaving ? 'wait' : 'pointer', marginBottom: '8px' }}>
         {isSaving ? '⏳ Создаём...' : '🚀 Создать приглашение!'}
       </button>
       
-      <button onClick={() => setStep(3)} style={{ width: '100%', padding: '16px', background: 'transparent', color: '#ff6b8a', border: '1px solid #333', borderRadius: '14px', fontSize: '17px', cursor: 'pointer' }}>
+      <button onClick={() => setStep(3)} style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: 'transparent', color: '#ff6b8a', border: '1px solid #333', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: 'pointer' }}>
         ← Назад
       </button>
     </div>

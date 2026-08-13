@@ -10,7 +10,6 @@ import Step4Final from './components/Step4Final';
 import InviteIntro from './components/InviteIntro';
 import { getInvite, updateInvite } from './firebase';
 
-// Адаптивные стили
 const appWrapperStyle = {
   display: 'flex',
   justifyContent: 'center',
@@ -30,23 +29,6 @@ const appContainerStyle = {
   color: '#fff',
   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   boxSizing: 'border-box',
-};
-
-const headingStyle = {
-  fontSize: 'clamp(24px, 6vw, 32px)',
-  marginBottom: '15px',
-  color: '#fff',
-};
-
-const subheadingStyle = {
-  fontSize: 'clamp(14px, 3.5vw, 18px)',
-  color: '#888',
-  marginBottom: '20px',
-};
-
-const emojiStyle = {
-  fontSize: 'clamp(48px, 12vw, 80px)',
-  marginBottom: '20px',
 };
 
 function App() {
@@ -94,7 +76,7 @@ function App() {
 
   if (isLoading) {
     return (
-      <div style={{ ...appWrapperStyle }}>
+      <div style={appWrapperStyle}>
         <div style={{ fontSize: 'clamp(32px, 8vw, 48px)', color: '#fff' }}>⏳ Загрузка...</div>
       </div>
     );
@@ -112,38 +94,63 @@ function App() {
     return (
       <div style={appWrapperStyle}>
         <div style={{ ...appContainerStyle, textAlign: 'center' }}>
-          <div style={emojiStyle}>🎉</div>
-          <h1 style={headingStyle}>Приглашение принято!</h1>
-          <p style={subheadingStyle}>
+          <div style={{ fontSize: 'clamp(48px, 12vw, 80px)', marginBottom: '20px' }}>🎉</div>
+          <h1 style={{ fontSize: 'clamp(24px, 6vw, 32px)', marginBottom: '15px', color: '#fff' }}>Приглашение принято!</h1>
+          <p style={{ fontSize: 'clamp(14px, 3.5vw, 18px)', color: '#888', marginBottom: '20px' }}>
             {inviteView.myProfile.name} приглашает {inviteView.partnerInfo.name} ❤️
           </p>
           
-          <div style={{
-            background: '#2a2a00',
-            border: '1px solid #ffcc00',
-            padding: 'clamp(10px, 2.5vw, 15px)',
-            borderRadius: '12px',
-            marginBottom: '20px',
-          }}>
-            <p style={{ fontSize: 'clamp(13px, 3vw, 16px)', color: '#ffcc00', fontWeight: '600' }}>
-              📸 Не забудь сделать скриншот!
-            </p>
+          <div style={{ background: '#2a2a00', border: '1px solid #ffcc00', padding: 'clamp(10px, 2.5vw, 15px)', borderRadius: '12px', marginBottom: '20px' }}>
+            <p style={{ fontSize: 'clamp(13px, 3vw, 16px)', color: '#ffcc00', fontWeight: '600' }}>📸 Не забудь сделать скриншот!</p>
           </div>
           
-          <div style={{
-            background: '#252525',
-            padding: 'clamp(15px, 4vw, 20px)',
-            borderRadius: '16px',
-            marginBottom: '20px',
-            textAlign: 'left',
-          }}>
+          <div style={{ background: '#252525', padding: 'clamp(15px, 4vw, 20px)', borderRadius: '16px', marginBottom: '20px', textAlign: 'left' }}>
             {displayTheme && <p style={{ fontSize: 'clamp(14px, 3.5vw, 16px)', color: '#fff', marginBottom: '10px' }}><span style={{ color: '#888' }}>Стиль:</span> {displayTheme.emoji} {displayTheme.label}</p>}
             {displayFormat && <p style={{ fontSize: 'clamp(14px, 3.5vw, 16px)', color: '#fff', marginBottom: '10px' }}><span style={{ color: '#888' }}>Где:</span> {displayFormat.emoji} {displayFormat.label}</p>}
             {displayFoods?.length > 0 && <p style={{ fontSize: 'clamp(14px, 3.5vw, 16px)', color: '#fff', marginBottom: '10px' }}><span style={{ color: '#888' }}>Что кушаем:</span> {displayFoods.map(id => { const f = foodOptions.find(x => x.id === id); return f ? `${f.emoji} ${f.label}` : ''; }).join(', ')}</p>}
             {displayDateTime && <p style={{ fontSize: 'clamp(14px, 3.5vw, 16px)', color: '#fff', marginBottom: '10px' }}><span style={{ color: '#888' }}>Дата и время:</span> {new Date(displayDateTime).toLocaleString('ru-RU')}</p>}
             {displayLocation && <p style={{ fontSize: 'clamp(14px, 3.5vw, 16px)', color: '#fff', marginBottom: '10px' }}><span style={{ color: '#888' }}>Место встречи:</span> 📍 {displayLocation}</p>}
           </div>
-          
+
+          <button
+            onClick={() => {
+              const dateTime = displayDateTime;
+              const location = displayLocation;
+              if (!dateTime) { alert('Дата не указана'); return; }
+              const startDate = new Date(dateTime);
+              const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
+              const formatDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+              const title = `Свидание с ${inviteView.myProfile.name}`;
+              const details = `Стиль: ${displayTheme?.label || ''}\nФормат: ${displayFormat?.label || ''}\nМесто: ${location || ''}`;
+              const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${formatDate(startDate)}/${formatDate(endDate)}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location || '')}`;
+              window.open(url, '_blank');
+            }}
+            style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: '#4285f4', color: '#fff', border: 'none', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: 'pointer', marginBottom: '8px' }}
+          >
+            📅 Добавить в Google Calendar
+          </button>
+
+          <button
+            onClick={() => {
+              const dateTime = displayDateTime;
+              const location = displayLocation;
+              if (!dateTime) { alert('Дата не указана'); return; }
+              const startDate = new Date(dateTime);
+              const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
+              const formatDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+              const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Date Invite//RU\nBEGIN:VEVENT\nUID:${Date.now()}@dateinvite\nDTSTAMP:${formatDate(new Date())}\nDTSTART:${formatDate(startDate)}\nDTEND:${formatDate(endDate)}\nSUMMARY:Свидание с ${inviteView.myProfile.name}\nLOCATION:${location || ''}\nEND:VEVENT\nEND:VCALENDAR`;
+              const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+              const link = document.createElement('a');
+              link.href = URL.createObjectURL(blob);
+              link.download = 'date-invite.ics';
+              link.click();
+              URL.revokeObjectURL(link.href);
+            }}
+            style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: '#555', color: '#fff', border: 'none', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: 'pointer', marginBottom: '8px' }}
+          >
+            📲 Добавить в Apple Calendar (.ics)
+          </button>
+
           <button onClick={() => { setIsAccepted(false); setInviteView(null); setPartnerStep(1); setShowIntro(true); reset(); window.history.replaceState({}, '', '/'); }} 
             style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: '#00b894', color: '#fff', border: 'none', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: 'pointer' }}>
             Отлично! 👌
@@ -179,7 +186,7 @@ function App() {
         <div style={appWrapperStyle}>
           <div style={{ ...appContainerStyle, textAlign: 'center' }}>
             <div style={{ fontSize: 'clamp(40px, 10vw, 64px)', marginBottom: '20px' }}>💌</div>
-            <h1 style={{ ...headingStyle, fontSize: 'clamp(22px, 5.5vw, 28px)' }}>{inviteView.myProfile.name} приглашает тебя!</h1>
+            <h1 style={{ fontSize: 'clamp(22px, 5.5vw, 28px)', marginBottom: '10px', color: '#fff' }}>{inviteView.myProfile.name} приглашает тебя!</h1>
             <p style={{ color: '#888', marginBottom: '30px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}>Выбери, что тебе нравится</p>
 
             <div style={{ display: 'flex', gap: '6px', marginBottom: '24px' }}>
