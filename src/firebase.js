@@ -22,6 +22,7 @@ export const saveInvite = async (inviteId, data) => {
     return true;
   } catch (error) {
     console.error('❌ Ошибка сохранения:', error);
+    alert('Ошибка сохранения: ' + error.message);
     return false;
   }
 };
@@ -29,8 +30,12 @@ export const saveInvite = async (inviteId, data) => {
 // Получить приглашение
 export const getInvite = async (inviteId) => {
   try {
-    const docSnap = await getDoc(doc(db, 'invites', inviteId));
-    return docSnap.exists() ? docSnap.data() : null;
+    const docRef = doc(db, 'invites', inviteId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data();
+    }
+    return null;
   } catch (error) {
     console.error('❌ Ошибка получения:', error);
     return null;
@@ -39,13 +44,17 @@ export const getInvite = async (inviteId) => {
 
 // Слушать изменения (реальное время)
 export const listenToInvite = (inviteId, callback) => {
-  return onSnapshot(doc(db, 'invites', inviteId), (docSnap) => {
-    if (docSnap.exists()) {
-      callback(docSnap.data());
+  return onSnapshot(
+    doc(db, 'invites', inviteId),
+    (docSnap) => {
+      if (docSnap.exists()) {
+        callback(docSnap.data());
+      }
+    },
+    (error) => {
+      console.error('❌ Ошибка слушателя:', error);
     }
-  }, (error) => {
-    console.error('❌ Ошибка слушателя:', error);
-  });
+  );
 };
 
 // Обновить приглашение
