@@ -6,9 +6,11 @@ export const themes = [
     color: '#ff3366',
     formats: [
       { id: 'home', label: 'Дома', emoji: '🏠', description: 'Уютный вечер вдвоём' },
-      { id: 'go_out', label: 'Сходить куда-то', emoji: '🎭', description: 'Кино, театр, кафе' },
+      { id: 'cafe', label: 'Кафе', emoji: '☕', description: 'Уютное кафе' },
+      { id: 'restaurant', label: 'Ресторан', emoji: '🍷', description: 'Изысканный ужин' },
+      { id: 'go_out', label: 'Сходить куда-то', emoji: '🎭', description: 'Кино, театр' },
       { id: 'walk', label: 'Прогуляться', emoji: '🚶', description: 'Пешая прогулка' },
-      { id: 'nature', label: 'Посидеть на природе', emoji: '🌳', description: 'Парк, набережная' },
+      { id: 'nature', label: 'На природе', emoji: '🌳', description: 'Парк, набережная' },
     ],
   },
   {
@@ -20,7 +22,9 @@ export const themes = [
       { id: 'quest', label: 'Квест', emoji: '🗝️', description: 'Разгадать загадки' },
       { id: 'extreme', label: 'Экстрим', emoji: '🪂', description: 'Адреналин' },
       { id: 'travel', label: 'Мини-путешествие', emoji: '🧭', description: 'Новое место' },
-      { id: 'nature', label: 'На природу', emoji: '🏕️', description: 'Поход, горы' },
+      { id: 'nature', label: 'Поход', emoji: '🏕️', description: 'Горы и лес' },
+      { id: 'water', label: 'Вода', emoji: '🚣', description: 'Сплавы, каякинг' },
+      { id: 'city', label: 'Исследовать город', emoji: '🗺️', description: 'Незнакомые места' },
     ],
   },
   {
@@ -33,6 +37,8 @@ export const themes = [
       { id: 'board', label: 'Настолки', emoji: '🎲', description: 'Настольные игры' },
       { id: 'movies', label: 'Фильмы/Сериалы', emoji: '🎬', description: 'Марафон' },
       { id: 'comics', label: 'Комиксы/Аниме', emoji: '📚', description: 'Обсудить любимое' },
+      { id: 'escape', label: 'Эскейп-рум', emoji: '🔐', description: 'Выбраться из комнаты' },
+      { id: 'vr', label: 'VR-клуб', emoji: '🥽', description: 'Виртуальная реальность' },
     ],
   },
   {
@@ -45,6 +51,8 @@ export const themes = [
       { id: 'home', label: 'Дома', emoji: '🛋️', description: 'Плед и фильм' },
       { id: 'walk', label: 'Прогулка', emoji: '🌆', description: 'Вечерний город' },
       { id: 'cooking', label: 'Готовить вместе', emoji: '🍳', description: 'Кулинарный опыт' },
+      { id: 'books', label: 'Книжный магазин', emoji: '📖', description: 'Выбрать книги' },
+      { id: 'picnic', label: 'Пикник', emoji: '🧺', description: 'На свежем воздухе' },
     ],
   },
 ];

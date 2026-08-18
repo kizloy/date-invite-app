@@ -37,10 +37,10 @@ const InviteIntro = ({ myName, partnerName, myPhoto, onAccept }) => {
     }}>
       <div style={{
         width: '100%',
-        maxWidth: 'min(420px, 100%)',
+        maxWidth: 'min(520px, 100%)',
         background: '#1a1a1a',
         borderRadius: 'clamp(16px, 4vw, 24px)',
-        padding: 'clamp(16px, 4vw, 24px)',
+        padding: 'clamp(20px, 5vw, 40px)',
         boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
         color: '#fff',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -170,7 +170,6 @@ const InviteIntro = ({ myName, partnerName, myPhoto, onAccept }) => {
   );
 };
 
-// Helper для clamp
 const clamp = (min, val, max) => Math.min(Math.max(val, min), max);
 
 export default InviteIntro;

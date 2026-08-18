@@ -21,17 +21,16 @@ const appWrapperStyle = {
 
 const appContainerStyle = {
   width: '100%',
-  maxWidth: 'min(420px, 100%)',
+  maxWidth: 'min(520px, 100%)',
   background: '#1a1a1a',
   borderRadius: 'clamp(16px, 4vw, 24px)',
-  padding: 'clamp(16px, 4vw, 32px)',
+  padding: 'clamp(20px, 5vw, 40px)',
   boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
   color: '#fff',
   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   boxSizing: 'border-box',
 };
 
-// Общие функции для календарей
 const addToGoogleCalendar = (dateTime, location, title, description) => {
   if (!dateTime) { alert('Дата не указана'); return; }
   const startDate = new Date(dateTime);
@@ -69,7 +68,6 @@ const addToAppleCalendar = (dateTime, location, title, description) => {
   document.body.removeChild(link);
 };
 
-// Компонент кнопок календарей
 const CalendarButtons = ({ dateTime, location, title, description }) => (
   <>
     <button onClick={() => addToGoogleCalendar(dateTime, location, title, description)}
