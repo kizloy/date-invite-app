@@ -3,6 +3,45 @@ import useInviteStore from '../store/inviteStore';
 import { foodOptions, themes } from '../data/themes';
 import { saveInvite, listenToInvite } from '../firebase';
 
+// Функция для Google Calendar
+const addToGoogleCalendar = (dateTime, location, title, description) => {
+  if (!dateTime) { alert('Дата не указана'); return; }
+  const startDate = new Date(dateTime);
+  const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
+  const formatDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${formatDate(startDate)}/${formatDate(endDate)}&details=${encodeURIComponent(description)}&location=${encodeURIComponent(location || '')}`;
+  window.open(url, '_blank');
+};
+
+// Функция для Apple Calendar
+const addToAppleCalendar = (dateTime, location, title, description) => {
+  if (!dateTime) { alert('Дата не указана'); return; }
+  const startDate = new Date(dateTime);
+  const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
+  const formatDate = (date) => {
+    const d = new Date(date);
+    return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}T${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}${String(d.getSeconds()).padStart(2, '0')}`;
+  };
+  const icsContent = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Date Invite//RU',
+    'BEGIN:VEVENT',
+    `UID:${Date.now()}@dateinvite`,
+    `DTSTAMP:${formatDate(new Date())}`,
+    `DTSTART:${formatDate(startDate)}`,
+    `DTEND:${formatDate(endDate)}`,
+    `SUMMARY:${title}`,
+    `LOCATION:${location || ''}`,
+    `DESCRIPTION:${description || ''}`,
+    'END:VEVENT', 'END:VCALENDAR'
+  ].join('\r\n');
+  const link = document.createElement('a');
+  link.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsContent);
+  link.download = 'date-invite.ics';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 const Step4Final = () => {
   const { myProfile, partnerInfo, settings, details, updateDetails, updateSettings, setStep, reset } = useInviteStore();
   const [isGenerated, setIsGenerated] = useState(false);
@@ -59,60 +98,7 @@ const Step4Final = () => {
     alert('Ссылка скопирована! 📋');
   };
 
-  // Функция для Apple Calendar
-  const addToAppleCalendar = (dateTime, location, title, description) => {
-    if (!dateTime) { alert('Дата не указана'); return; }
-    
-    const startDate = new Date(dateTime);
-    const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
-    const formatDate = (date) => {
-      const d = new Date(date);
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      const hours = String(d.getHours()).padStart(2, '0');
-      const minutes = String(d.getMinutes()).padStart(2, '0');
-      const seconds = String(d.getSeconds()).padStart(2, '0');
-      return `${year}${month}${day}T${hours}${minutes}${seconds}`;
-    };
-    
-    const icsContent = [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//Date Invite//RU',
-      'BEGIN:VEVENT',
-      `UID:${Date.now()}@dateinvite`,
-      `DTSTAMP:${formatDate(new Date())}`,
-      `DTSTART:${formatDate(startDate)}`,
-      `DTEND:${formatDate(endDate)}`,
-      `SUMMARY:${title}`,
-      `LOCATION:${location || ''}`,
-      `DESCRIPTION:${description || ''}`,
-      'END:VEVENT',
-      'END:VCALENDAR'
-    ].join('\r\n');
-    
-    // Создаём ссылку
-    const link = document.createElement('a');
-    link.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsContent);
-    link.download = 'date-invite.ics';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  // Функция для Google Calendar
-  const addToGoogleCalendar = (dateTime, location, title, description) => {
-    if (!dateTime) { alert('Дата не указана'); return; }
-    
-    const startDate = new Date(dateTime);
-    const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
-    const formatDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-    
-    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${formatDate(startDate)}/${formatDate(endDate)}&details=${encodeURIComponent(description)}&location=${encodeURIComponent(location || '')}`;
-    window.open(url, '_blank');
-  };
-
+  // СТРАНИЦА: Приглашение принято (для создателя)
   if (isGenerated && partnerChoices?.accepted) {
     const selectedTheme = themes.find(t => t.id === partnerChoices.selectedTheme);
     const selectedFormat = selectedTheme?.formats.find(f => f.id === partnerChoices.selectedFormat);
@@ -147,19 +133,18 @@ const Step4Final = () => {
           {location && <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}><span style={{ color: '#888' }}>Место встречи:</span> 📍 {location}</p>}
         </div>
 
-        {/* Google Calendar */}
-        <button onClick={() => addToGoogleCalendar(dateTime, location, title, description)} 
+        {/* КАЛЕНДАРИ */}
+        <button onClick={() => addToGoogleCalendar(dateTime, location, title, description)}
           style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: '#4285f4', color: '#fff', border: 'none', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: 'pointer', marginBottom: '8px' }}>
-          📅 Google Calendar
+          📅 Добавить в Google Calendar
         </button>
 
-        {/* Apple Calendar */}
-        <button onClick={() => addToAppleCalendar(dateTime, location, title, description)} 
+        <button onClick={() => addToAppleCalendar(dateTime, location, title, description)}
           style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: '#555', color: '#fff', border: 'none', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: 'pointer', marginBottom: '8px' }}>
-          📲 Apple Calendar (.ics)
+          📲 Добавить в Apple Calendar
         </button>
 
-        <button onClick={() => { setIsGenerated(false); setPartnerChoices(null); reset(); }} 
+        <button onClick={() => { setIsGenerated(false); setPartnerChoices(null); reset(); }}
           style={{ width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: '#00b894', color: '#fff', border: 'none', borderRadius: '14px', fontSize: 'clamp(14px, 3.5vw, 17px)', cursor: 'pointer' }}>
           Отлично! 👌
         </button>
@@ -167,6 +152,7 @@ const Step4Final = () => {
     );
   }
 
+  // СТРАНИЦА: Приглашение создано (ждём ответ)
   if (isGenerated) {
     return (
       <div style={{ textAlign: 'center' }}>
@@ -190,6 +176,7 @@ const Step4Final = () => {
     );
   }
 
+  // ФОРМА: Детали свидания
   const inputStyle = {
     width: '100%', padding: 'clamp(12px, 3vw, 16px)', background: '#252525', border: '2px solid #333',
     borderRadius: '14px', color: '#fff', fontSize: '16px', marginBottom: '16px',
