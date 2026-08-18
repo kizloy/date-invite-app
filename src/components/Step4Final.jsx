@@ -3,7 +3,6 @@ import useInviteStore from '../store/inviteStore';
 import { foodOptions, themes } from '../data/themes';
 import { saveInvite, listenToInvite } from '../firebase';
 
-// Функция для Google Calendar
 const addToGoogleCalendar = (dateTime, location, title, description) => {
   if (!dateTime) { alert('Дата не указана'); return; }
   const startDate = new Date(dateTime);
@@ -13,7 +12,6 @@ const addToGoogleCalendar = (dateTime, location, title, description) => {
   window.open(url, '_blank');
 };
 
-// Функция для Apple Calendar
 const addToAppleCalendar = (dateTime, location, title, description) => {
   if (!dateTime) { alert('Дата не указана'); return; }
   const startDate = new Date(dateTime);
@@ -102,8 +100,9 @@ const Step4Final = () => {
   if (isGenerated && partnerChoices?.accepted) {
     const selectedTheme = themes.find(t => t.id === partnerChoices.selectedTheme);
     const selectedFormat = selectedTheme?.formats.find(f => f.id === partnerChoices.selectedFormat);
-    const dateTime = partnerChoices.selectedDateTime;
-    const location = partnerChoices.selectedLocation;
+    const dateTime = partnerChoices.selectedDateTime || details.dateTime;
+    const location = partnerChoices.selectedLocation || details.location;
+    const foods = partnerChoices.selectedFoods || settings.foods;
     const title = `Свидание с ${partnerInfo.name}`;
     const description = `Стиль: ${selectedTheme?.label || ''} - Формат: ${selectedFormat?.label || ''} - Место: ${location || ''}`;
     
@@ -117,20 +116,42 @@ const Step4Final = () => {
           <p style={{ fontSize: 'clamp(14px, 3vw, 16px)', color: '#ffcc00', fontWeight: '600' }}>📸 Не забудь сделать скриншот!</p>
         </div>
 
+        {/* ДЕТАЛИ СВИДАНИЯ */}
         <div style={{ background: '#252525', padding: '20px', borderRadius: '16px', marginBottom: '20px', textAlign: 'left' }}>
-          {selectedTheme && <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}><span style={{ color: '#888' }}>Стиль:</span> {selectedTheme.emoji} {selectedTheme.label}</p>}
-          {selectedFormat && <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}><span style={{ color: '#888' }}>Где:</span> {selectedFormat.emoji} {selectedFormat.label}</p>}
-          {partnerChoices.selectedFoods?.length > 0 && (
+          {selectedTheme && (
+            <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}>
+              <span style={{ color: '#888' }}>Стиль:</span> {selectedTheme.emoji} {selectedTheme.label}
+            </p>
+          )}
+          {selectedFormat && (
+            <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}>
+              <span style={{ color: '#888' }}>Где:</span> {selectedFormat.emoji} {selectedFormat.label}
+            </p>
+          )}
+          {foods && foods.length > 0 && (
             <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}>
               <span style={{ color: '#888' }}>Что кушаем:</span>{' '}
-              {partnerChoices.selectedFoods.map(foodId => {
+              {foods.map(foodId => {
                 const food = foodOptions.find(f => f.id === foodId);
                 return food ? `${food.emoji} ${food.label}` : '';
               }).join(', ')}
             </p>
           )}
-          {dateTime && <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}><span style={{ color: '#888' }}>Дата и время:</span> {new Date(dateTime).toLocaleString('ru-RU')}</p>}
-          {location && <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}><span style={{ color: '#888' }}>Место встречи:</span> 📍 {location}</p>}
+          {dateTime && (
+            <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}>
+              <span style={{ color: '#888' }}>Дата и время:</span> {new Date(dateTime).toLocaleString('ru-RU')}
+            </p>
+          )}
+          {location && (
+            <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}>
+              <span style={{ color: '#888' }}>Место встречи:</span> 📍 {location}
+            </p>
+          )}
+          {details.dressCode && (
+            <p style={{ color: '#fff', marginBottom: '10px', fontSize: 'clamp(14px, 3.5vw, 16px)' }}>
+              <span style={{ color: '#888' }}>Дресс-код:</span> 👔 {details.dressCode}
+            </p>
+          )}
         </div>
 
         {/* КАЛЕНДАРИ */}
