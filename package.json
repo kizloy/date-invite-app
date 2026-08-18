@@ -10,11 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vitejs/plugin-legacy": "^8.2.3",
     "firebase": "^12.17.1",
     "framer-motion": "^13.1.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.2",
+    "terser": "^5.50.0",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
