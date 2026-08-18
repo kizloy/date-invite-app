@@ -51,7 +51,7 @@ export const themes = [
       { id: 'home', label: 'Дома', emoji: '🛋️', description: 'Плед и фильм' },
       { id: 'walk', label: 'Прогулка', emoji: '🌆', description: 'Вечерний город' },
       { id: 'cooking', label: 'Готовить вместе', emoji: '🍳', description: 'Кулинарный опыт' },
-      { id: 'books', label: 'Книжный магазин', emoji: '📖', description: 'Выбрать книги' },
+      { id: 'cleaning', label: 'Уборка', emoji: '🧹', description: 'Убраться вместе' },
       { id: 'picnic', label: 'Пикник', emoji: '🧺', description: 'На свежем воздухе' },
     ],
   },
